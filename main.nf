@@ -24,7 +24,7 @@
   */
 
 
-s3file = file('s3://nextflow-ont-k8s-testing/test.txt')
+s3file = file('s3://Test_Storage_Bucket_K8s/test.txt')
 
 process foo {
   echo true
