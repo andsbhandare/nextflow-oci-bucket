@@ -23,15 +23,44 @@
  * Run a process using a S3 file as input
   */
 
-
-s3file = file('s3://dasl-dev/hello.txt')
-
-process foo {
-  echo true
-  input:
-  file(obj) from s3file
-
-  """
-  cat $obj | head
-  """
+ 
+/* params.in = "$baseDir/data/sample.fa"
+*/
+params.in = "s3://dasl-dev/sample.fa"
+ 
+/*
+ * split a fasta file in multiple files
+ */
+process splitSequences {
+ 
+    input:
+    path 'input.fa' from params.in
+ 
+    output:
+    path 'seq_*' into records
+ 
+    """
+    awk '/^>/{f="seq_"++d} {print > f}' < input.fa
+    """
 }
+ 
+/*
+ * Simple reverse the sequences
+ */
+process reverse {
+ 
+    input:
+    path x from records
+     
+    output:
+    stdout into result
+ 
+    """
+    cat $x | rev
+    """
+}
+ 
+/*
+ * print the channel content
+ */
+result.subscribe { println it }
